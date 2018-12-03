@@ -62,22 +62,34 @@ public class EspaceTest {
 		assertNotEquals("Testing caseLibreAuHasard()",c,e.caseLibreAuHasard());
 	}
 	
+	@Test
 	public void testToString() {
 		Espace e = new Espace(2,2);
-		String s = ". ." +"\n" + ". .";
+		String s = ". . "  + "\n. . \n";
 		assertEquals("Testing toString()",s,e.toString());
 		Case c = new Case(0,0);
 		Chenille ch = new Chenille(e,c,2);
 		e.addChenille(ch);
-		s = "A ." + "\n" + ". .";
-		assertEquals("Testing toString()",s,e.toString());
-		c = new Case(0,1);
-		Chenille ch1 = new Chenille(e,c,2);
-		e.addChenille(ch1);
-		ch1.avance();
-		s = "a B" + "\n" + "A .";
+		s = "A . " + "\n. . \n";
 		assertEquals("Testing toString()",s,e.toString());
 		
+	}
+	
+	@Test
+	public void testMain(){
+		Espace e = new Espace(10);
+		Chenille ch1 = new Chenille(e,new Case(0,0),5);
+		e.addChenille(ch1);
+		Chenille ch2 = new Chenille(e,new Case(8,8),5);
+		e.addChenille(ch2);
+		Chenille ch3 = new Chenille(e,new Case(4,4),20);
+		e.addChenille(ch3);
+		for(int i = 0; i < ch3.getCases().length; i++){
+			System.out.println(e.toString());
+			ch1.avance();
+			ch2.avance();
+			ch3.avance();
+		}
 	}
 	
 	

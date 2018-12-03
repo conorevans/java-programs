@@ -37,7 +37,8 @@ public class Espace {
 	 * Constructor which makes a i x i square grid with 5 potential
 	 * caterpillars, none as of yet instantiated.
 	 * 
-	 * @param {int} i - height/width
+	 * @param {int}
+	 *            i - height/width
 	 */
 	public Espace(int i) {
 		this.largeur = i;
@@ -50,8 +51,10 @@ public class Espace {
 	 * Constructor which makes a i x j square grid with 5 potential
 	 * caterpillars, none as of yet instantiated.
 	 * 
-	 * @param {int} i - width
-	 * @param {int} j - height
+	 * @param {int}
+	 *            i - width
+	 * @param {int}
+	 *            j - height
 	 */
 	public Espace(int i, int j) {
 		this.largeur = i;
@@ -60,12 +63,16 @@ public class Espace {
 		this.nbChenilles = 0;
 	}
 
-	/** Adds caterpillar to the grid
-	 * @param {Chenille} c
+	/**
+	 * Adds caterpillar to the grid
+	 * 
+	 * @param {Chenille}
+	 *            c
 	 */
 	public void addChenille(Chenille c) {
-		//if our initial array of caterpillars is full and we wish to add another caterpillar
-		//we augment the array.
+		// if our initial array of caterpillars is full and we wish to add
+		// another caterpillar
+		// we augment the array.
 		if (this.chenilles.length == this.nbChenilles) {
 			this.chenilles = Arrays.copyOf(this.chenilles, this.chenilles.length + 5);
 			this.chenilles[this.chenilles.length] = c;
@@ -76,16 +83,23 @@ public class Espace {
 		}
 	}
 
-	/** Verifies if c is a valid co-ordinate in this grid
-	 * @param {Case} c
+	/**
+	 * Verifies if c is a valid co-ordinate in this grid
+	 * 
+	 * @param {Case}
+	 *            c
 	 * @return boolean
 	 */
 	public boolean contient(Case c) {
-		return !(c.getAbscisse() > this.largeur || c.getAbscisse() < 0 || c.getOrdonnee() < 0 || c.getOrdonnee() > this.hauteur);
+		return (c.getAbscisse() >= 0 && c.getAbscisse() < this.largeur && c.getOrdonnee() >= 0
+				&& c.getOrdonnee() < this.hauteur);
 	}
 
-	/** Verifies if current co-ordinate is already occupied
-	 * @param {Case} c
+	/**
+	 * Verifies if current co-ordinate is already occupied
+	 * 
+	 * @param {Case}
+	 *            c
 	 * @return boolean
 	 */
 	public boolean caseOccupee(Case c) {
@@ -96,16 +110,20 @@ public class Espace {
 		}
 		return false;
 	}
-	
-	/** Returns a random coordinate in the grid
+
+	/**
+	 * Returns a random coordinate in the grid
+	 * 
 	 * @return {Case}
 	 */
 	public Case caseAuHasard() {
 		Random r = new Random();
 		return new Case(r.nextInt(largeur), r.nextInt(hauteur));
 	}
-	
-	/** Returns a random unoccupied coordinate in the grid
+
+	/**
+	 * Returns a random unoccupied coordinate in the grid
+	 * 
 	 * @return {Case}
 	 */
 	public Case caseLibreAuHasard() {
@@ -117,22 +135,21 @@ public class Espace {
 	}
 
 	/**
-	 * Represents the grid as a String
-	 * return {String}
+	 * Represents the grid as a String return {String}
 	 */
 	public String toString() {
 		String s = "";
 		for (int i = 0; i < this.hauteur; i++) {
 			for (int j = 0; j < this.largeur; j++) {
 				Case c = new Case(j, i);
-				//set base grid
+				// set base grid
 				if (!caseOccupee(c)) {
 					s += ". ";
 				} else {
 					for (int k = 0; k < this.nbChenilles; k++) {
 						if (this.chenilles[k].estSur(c)) {
 							Case[] chenille = this.chenilles[k].getCases();
-							//capital to represent head of the caterpillar
+							// capital to represent head of the caterpillar
 							if (c.equals(chenille[0])) {
 								s += (char) (k + 'A') + " ";
 							} else {
@@ -162,5 +179,15 @@ public class Espace {
 
 	public int getNbChenilles() {
 		return nbChenilles;
+	}
+
+	public void main(String[] args) {
+		Espace e = new Espace(10);
+		Chenille ch1 = new Chenille(e, new Case(0, 0), 5);
+		e.addChenille(ch1);
+		for (int i = 0; i < ch1.getCases().length; i++) {
+			System.out.println(e.toString());
+			ch1.avance();
+		}
 	}
 }
