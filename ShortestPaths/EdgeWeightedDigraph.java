@@ -1,4 +1,6 @@
-
+/**
+ * @author Conor Evans
+ **/
 public class EdgeWeightedDigraph {
 	private final int V; // #vertices
 	private Bag<DirectedEdge>[] adj;
