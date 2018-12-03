@@ -20,18 +20,10 @@ import java.util.InputMismatchException;
  *     The city is a collection of intersections in which some pairs are connected by one-way
  * streets that the contestants can use to traverse the city.
  *
- * This class implements the competition using Dijkstra's algorithm
+ * This class implements the competition using Floyd-Warshall algorithm
  */
 
-public class CompetitionDijkstra {
-	private EdgeWeightedDigraph G;
-	private double slowestSpeed;
-	private double longestDistance;
-	private double weight;
-	private boolean validFile;
-	private int startVertex;
-	private int destinationVertex;
-	private int V;
+public class CompetitionFloydWarshall {
 
 	/**
 	 * @param filename:
@@ -39,23 +31,32 @@ public class CompetitionDijkstra {
 	 * @param sA,
 	 *            sB, sC: speeds for 3 contestants
 	 */
-	CompetitionDijkstra(String filename, int sA, int sB, int sC) {
+	private int V; // num vertices
+	private double[][] distTo; // array of distances between vertices
+	private double longestDistance;
+	private double slowestSpeed;
+	private double weight;
+	private boolean validFile;
+	private int startVertex;
+	private int destinationVertex;
+
+	CompetitionFloydWarshall(String filename, int sA, int sB, int sC) {
+
+		// if invalid speed returned from min(), set sS to -1
+		if (sA <= 0 || sB <= 0 || sC <= 0)
+			slowestSpeed = -1.0;
 		// store speed of slowest contestant
 		// divide by 1000 to turn speeds (km) to be in same unit
 		// as weights (m)
-		if (sA <= 0 || sB <= 0 || sC <= 0)
-			slowestSpeed = -1.0;
 		else
 			slowestSpeed = (double) min(sA, sB, sC) / 1000;
-
 		try {
 			In in = new In(filename);
-			// if reaches this point, vF = true
+			// if it gets to this point, vF = true
 			validFile = true;
 			if (in.hasNextLine()) {
 				V = in.readInt();
-				G = new EdgeWeightedDigraph(V);
-
+				distTo = new double[V][V];
 			} else {
 				validFile = false;
 				return;
@@ -70,6 +71,16 @@ public class CompetitionDijkstra {
 				validFile = false;
 				return;
 			}
+
+			// set each weight to infinity, to be updated.
+			for (int i = 0; i < V; i++)
+				for (int j = 0; j < V; j++)
+					distTo[i][j] = Double.POSITIVE_INFINITY;
+
+			// set each vertex's distance to itself to 0
+			for (int i = 0; i < V; i++)
+				distTo[i][i] = 0.0;
+
 			// if no vertex/weight details available, file invalid
 			if (!in.hasNextLine()) {
 				validFile = false;
@@ -95,10 +106,7 @@ public class CompetitionDijkstra {
 					validFile = false;
 					return;
 				}
-				// create edge
-				DirectedEdge edge = new DirectedEdge(startVertex, destinationVertex, weight);
-				// add each edge to EWD
-				G.addEdge(edge);
+				distTo[startVertex][destinationVertex] = weight;
 			}
 		} catch (NullPointerException Exception) {
 			validFile = false;
@@ -106,6 +114,15 @@ public class CompetitionDijkstra {
 			validFile = false;
 		}
 
+		// for each path from a to c, check if the weight is more than the path
+		// from a to an intermediate point b + the weight from b to c.
+		// If so, we reroute the path from
+		// a->c to a->b->c, and update the weights.
+		for (int i = 0; i < V; i++)
+			for (int j = 0; j < V; j++)
+				for (int k = 0; k < V; k++)
+					if (distTo[j][k] > distTo[j][i] + distTo[i][k])
+						distTo[j][k] = distTo[j][i] + distTo[i][k];
 	}
 
 	/**
@@ -116,17 +133,18 @@ public class CompetitionDijkstra {
 		// if an invalid speed was entered, or the file was invalid, return -1.
 		if (slowestSpeed == -1.0 || validFile == false)
 			return -1;
-		for (int i = 0; i < V; i++) {
-			DijkstraSP sp = new DijkstraSP(G, i);
+		for (int i = 0; i < V; i++)
 			for (int j = 0; j < V; j++)
-				// if path from current start vertex (i) to another vertex (j)
-				// is longer than current
-				// stored longestDistance, update the longestDistance value.
-				if (sp.hasPathTo(j) && sp.distTo(j) > longestDistance)
-					longestDistance = sp.distTo(j);
-				else if (!sp.hasPathTo(j))
+				// we have already updated the values in the constructor
+				// so if any value has not been updated (i.e. if no path found)
+				// we return -1.
+				if (distTo[i][j] == Double.POSITIVE_INFINITY)
 					return -1;
-		}
+				// if current distance from vertex i to j is longer than the
+				// current stored
+				// longest distance, update the value of the longest distance.
+				else if (distTo[i][j] > longestDistance)
+					longestDistance = distTo[i][j];
 		return (int) Math.ceil(longestDistance / slowestSpeed);
 	}
 
